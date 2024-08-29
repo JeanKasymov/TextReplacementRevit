@@ -1,0 +1,214 @@
+﻿<Window x:Class="TextReplacement.MainWindow"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:TextReplacement"
+             mc:Ignorable="d"              
+        WindowStartupLocation="CenterScreen" 
+        Title="Замена текста" 
+        WindowStyle="None" 
+        Background="Transparent" 
+        AllowsTransparency="True"
+        SizeToContent="WidthAndHeight"
+        ResizeMode="NoResize"
+        >   
+    <Window.Template>
+        <ControlTemplate TargetType="Window">
+            <ControlTemplate.Resources>
+                <Style x:Key="closeButton" TargetType="Button">
+                    <Setter Property="Height" Value="35"/>
+                    <Setter Property="Width" Value="35"/>
+                    <Setter Property="IsCancel" Value="True"/>
+                    <Setter Property="HorizontalAlignment" Value="Right"/>
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="Button">
+                                <Border CornerRadius="25" BorderThickness="2" BorderBrush="#B5CBEF"  x:Name="Bd" Background="Transparent" >
+                                    <Path x:Name="Pt" Data="M0,0 M0.2,0.2 L 0.8,0.8 M0.2,0.8 L0.8,0.2 M1,1"
+                      Stretch="Uniform" Stroke="Black" StrokeThickness="2"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="Bd" Property="Background" Value="Red"/>
+                                        <Setter TargetName="Pt" Property="Stroke" Value="White"/>
+                                    </Trigger>
+                                    <Trigger Property="IsPressed" Value="True">
+                                        <Setter TargetName="Bd" Property="Background" Value="AliceBlue"/>
+                                        <Setter TargetName="Pt" Property="Stroke" Value="Black"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+                <Style TargetType="{x:Type Button}">
+                    <Setter Property="Background" Value="White" />
+                    <Setter Property="SnapsToDevicePixels" Value="True" />
+
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="{x:Type Button}">
+                                <Border CornerRadius="10" >
+                                    <Border.Background>
+                                        <SolidColorBrush x:Name="BorderColor" Color="WhiteSmoke"/>
+                                    </Border.Background>
+                                    <Grid>
+                                        <ContentPresenter x:Name="MyContentPresenter" Content="{TemplateBinding Content}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Grid>
+
+                                    <VisualStateManager.VisualStateGroups>
+                                        <VisualStateGroup Name="CommonState">
+                                            <VisualState Name="MouseOver">
+                                                <Storyboard>
+                                                    <ColorAnimation Storyboard.TargetName="BorderColor" Storyboard.TargetProperty="Color" To="CadetBlue"/>
+                                                </Storyboard>
+                                            </VisualState>
+                                            <VisualState Name="Normal">
+                                                <Storyboard>
+                                                    <ColorAnimation Storyboard.TargetName="BorderColor" Storyboard.TargetProperty="Color" To="AliceBlue"/>
+                                                </Storyboard>
+                                            </VisualState>
+                                        </VisualStateGroup>
+                                    </VisualStateManager.VisualStateGroups>
+                                </Border>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </ControlTemplate.Resources>
+            <Border Name="cornerBorder" CornerRadius="20" Width="auto" Height="auto" BorderBrush="#B5CBEF" BorderThickness="2">
+                <Border.Background>
+                    <LinearGradientBrush>
+                        <GradientStop Color="#e7ebf7" Offset="0.0"></GradientStop>
+                        <GradientStop Color="#cee3ff" Offset="0.5"></GradientStop>
+                    </LinearGradientBrush>
+                </Border.Background>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="35"/>
+                        <RowDefinition/>
+                        <RowDefinition Height="35"/>
+                    </Grid.RowDefinitions>
+                    <Grid Grid.Row="0">
+                        <TextBlock MouseLeftButtonDown="Header_MouseLeftButtonDown" Text="{TemplateBinding Title}" FontSize="15" Padding="7"/>
+                        <Button Style="{StaticResource closeButton}"/>
+                    </Grid>
+                    <Grid Grid.Row="1">
+                        <AdornerDecorator>
+                            <ContentPresenter Content="{TemplateBinding Content}" ContentTemplate="{TemplateBinding ContentTemplate}"/>
+                        </AdornerDecorator>
+                    </Grid>
+                    <Grid Grid.Row="2">
+                        <Button HorizontalAlignment="Center" Content="Заменить" Click="Ok_Click" Command="{Binding PluginMainCommand}" Height="30" Width="65"/>
+                    </Grid>                    
+                </Grid>
+            </Border>
+        </ControlTemplate>
+    </Window.Template>    
+    <Window.Resources>
+        <DataTemplate x:Key="categoryTemplate">
+            <CheckBox Content="{Binding Path=NameToDisplay}" 
+                      IsChecked="{Binding Path=IsChecked, Mode=TwoWay}"/>
+        </DataTemplate>
+        <DataTemplate x:Key="nameTemplate">
+            <TextBlock Text="{Binding Path=Name}"/>
+        </DataTemplate>
+    </Window.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0" Background="White">
+            <GroupBox Header="Фильтрация элементов по значению параметра" Padding="5">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition MinWidth="290"/>
+                        <ColumnDefinition MinWidth="290"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid Grid.Column="0">
+                        <StackPanel>
+                            <TextBlock Padding="1" HorizontalAlignment="Left">
+                                    Выберите параметр
+                            </TextBlock>
+                            <ComboBox Background="White" Width="250" ItemsSource="{Binding ParameterWraps}" SelectedItem="{Binding SelectedFilterParam}" ItemTemplate="{StaticResource nameTemplate}" HorizontalAlignment="Left"/>
+                        </StackPanel>
+                    </Grid>
+                    <Grid Grid.Column="2">
+                        <StackPanel>
+                            <TextBlock Padding="1" HorizontalAlignment="Left">
+                                    Введите значение параметра
+                            </TextBlock>
+                            <TextBox Text="{Binding SelectedFilterParamValue}" Width="250" Background="White" Padding="1" HorizontalAlignment="Left"/>
+                        </StackPanel>                        
+                    </Grid>
+                </Grid>
+            </GroupBox>
+        </Grid>
+        <Grid Grid.Row="1" Background="White">
+
+            <GroupBox Header="Ввод текста" Padding="5">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width ="*"/>
+                        <ColumnDefinition Width ="*"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="Заменяемый текст" HorizontalAlignment="Center"/>
+                        <TextBox Text="{Binding OldValue}" Width="auto" Padding="1"  Background="White" />
+                    </StackPanel>
+                    <StackPanel Grid.Column="1">
+                        <TextBlock Text="Текст для записи" HorizontalAlignment="Center"/>
+                        <TextBox Text="{Binding NewValue}" Width="auto" Background="White" Padding="1"/>
+                    </StackPanel>
+                </Grid>
+            </GroupBox>
+        </Grid>
+        <Grid Grid.Row="2" Background="White">
+            <Grid Grid.IsSharedSizeScope="True">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition MinWidth="300" Width="auto"/>
+                    <ColumnDefinition MinWidth="300" Width="auto"/>
+                </Grid.ColumnDefinitions>
+                <GroupBox Grid.Column="0" Header="Где заменять" Padding="5">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <CheckBox Content="Выбрать все"
+                                          Name="chkCats"
+                                          Command="{Binding CatsCheckedChangedCommand}"
+                                          CommandParameter="{Binding ElementName=chkCats}"/>
+                            <CheckBox Content="Иссключить элементы групп"
+                                          Margin="5 0 0 0"
+                                      IsChecked="{Binding ExcludeGroupElements}"/>
+                        </StackPanel>
+
+                        <ListBox Height="200"  ItemsSource="{Binding CategoryWraps}" ItemTemplate="{StaticResource categoryTemplate}"/>
+                        <TextBlock Padding="5">
+                                    Добавить категории для замены
+                        </TextBlock>
+                        <ComboBox Background="White" ItemsSource="{Binding OtherCategoryWraps}" ItemTemplate="{StaticResource categoryTemplate}"/>
+                    </StackPanel>
+                </GroupBox>
+                <GroupBox Grid.Column="1" Header="Выбор параметров" Padding="5">
+                    <StackPanel>
+                        <CheckBox Content="Выбрать все"
+                                          Name="chkParams"
+                                          Command="{Binding ParamsCheckedChangedCommand}"
+                                          CommandParameter="{Binding ElementName=chkParams}"/>
+                        <ListBox Height="200"  ItemsSource="{Binding ParameterWraps}" ItemTemplate="{StaticResource categoryTemplate}"/>
+                        <TextBlock Padding="5">
+                                    Добавить в список параметр по имени
+                        </TextBlock>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBox Text="{Binding NewParameter}" Width="150" Background="White" Padding="1"/>
+                            <Button Command="{Binding AddParameterCommand}" Content="Добавить" HorizontalAlignment="Right" Height="20" Width="60"/>
+                        </StackPanel>
+                    </StackPanel>
+                </GroupBox>
+            </Grid>
+        </Grid>
+    </Grid>
+
+</Window>
